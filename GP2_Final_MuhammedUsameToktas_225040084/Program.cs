@@ -7,6 +7,7 @@ namespace PetSimulator
     {
         static async Task Main(string[] args)
         {
+            Console.Title = "Pet Simulator";
             var game = new Game();
             await game.Run();
         }

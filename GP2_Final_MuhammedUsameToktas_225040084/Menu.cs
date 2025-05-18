@@ -25,7 +25,7 @@ namespace PetSimulator
                 {
                     return choice;
                 }
-                Console.WriteLine("Invalid input. Please try again.");
+                Console.WriteLine("Invalid choice. Please try again.");
             }
         }
     }

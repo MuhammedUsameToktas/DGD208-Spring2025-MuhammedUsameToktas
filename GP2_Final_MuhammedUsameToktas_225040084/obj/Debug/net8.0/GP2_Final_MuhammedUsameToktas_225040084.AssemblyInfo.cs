@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GP2_Final_MuhammedUsameToktas_225040084")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eb4e99955d6970907d10dc4519df722f441cf9b0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ee5019636e1f041b180e1cdb3f6da12a0765bf10")]
 [assembly: System.Reflection.AssemblyProductAttribute("GP2_Final_MuhammedUsameToktas_225040084")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GP2_Final_MuhammedUsameToktas_225040084")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

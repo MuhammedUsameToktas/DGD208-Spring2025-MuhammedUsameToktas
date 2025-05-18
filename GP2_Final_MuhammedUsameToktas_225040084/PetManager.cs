@@ -25,7 +25,7 @@ namespace PetSimulator
 
         public List<Pet> GetAllPets()
         {
-            return pets.ToList();
+            return pets;
         }
 
         public Pet? GetPetByName(string name)
