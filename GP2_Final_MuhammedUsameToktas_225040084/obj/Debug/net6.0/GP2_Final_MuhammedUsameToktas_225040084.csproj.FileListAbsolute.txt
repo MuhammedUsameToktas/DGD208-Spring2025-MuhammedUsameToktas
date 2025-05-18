@@ -1,0 +1,15 @@
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/bin/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/bin/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.deps.json
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/bin/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.runtimeconfig.json
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/bin/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.dll
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/bin/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.pdb
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/obj/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.GeneratedMSBuildEditorConfig.editorconfig
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/obj/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.AssemblyInfoInputs.cache
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/obj/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.AssemblyInfo.cs
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/obj/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.csproj.CoreCompileInputs.cache
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/obj/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.sourcelink.json
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/obj/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.dll
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/obj/Debug/net6.0/refint/GP2_Final_MuhammedUsameToktas_225040084.dll
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/obj/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.pdb
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/obj/Debug/net6.0/GP2_Final_MuhammedUsameToktas_225040084.genruntimeconfig.cache
+/Users/m.u.t/Desktop/University_S.4/GP2/GP2_Final/DGD208-Spring2025-MuhammedUsameToktas/GP2_Final_MuhammedUsameToktas_225040084/obj/Debug/net6.0/ref/GP2_Final_MuhammedUsameToktas_225040084.dll

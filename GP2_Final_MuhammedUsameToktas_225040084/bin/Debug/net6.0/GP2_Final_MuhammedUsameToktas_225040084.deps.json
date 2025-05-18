@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "GP2_Final_MuhammedUsameToktas_225040084/1.0.0": {
+        "runtime": {
+          "GP2_Final_MuhammedUsameToktas_225040084.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "GP2_Final_MuhammedUsameToktas_225040084/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

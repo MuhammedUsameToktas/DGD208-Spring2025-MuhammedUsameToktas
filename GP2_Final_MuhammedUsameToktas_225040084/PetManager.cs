@@ -28,7 +28,7 @@ namespace PetSimulator
             return pets.ToList();
         }
 
-        public Pet GetPetByName(string name)
+        public Pet? GetPetByName(string name)
         {
             return pets.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
