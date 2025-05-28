@@ -5,11 +5,11 @@ namespace PetSimulator
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
-            Console.Title = "Pet Simulator";
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             var game = new Game();
-            await game.Run();
+            game.Run();
         }
     }
 }

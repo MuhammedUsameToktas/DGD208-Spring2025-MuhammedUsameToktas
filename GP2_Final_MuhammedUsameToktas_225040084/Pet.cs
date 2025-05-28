@@ -6,7 +6,12 @@ namespace PetSimulator
     {
         Dog,
         Cat,
-        Dragon
+        Dragon,
+        Rabbit,
+        Hamster,
+        Bird,
+        Turtle,
+        Fish
     }
 
     public class Pet
@@ -39,18 +44,33 @@ namespace PetSimulator
             Age = 0;
         }
 
-        public void UpdateStats(int hunger, int sleep, int fun)
+        public void LoadFromSave(PetSaveData saveData)
+        {
+            Hunger = saveData.Hunger;
+            Sleep = saveData.Sleep;
+            Fun = saveData.Fun;
+            Level = saveData.Level;
+            Experience = saveData.Experience;
+            ExperienceToNextLevel = saveData.ExperienceToNextLevel;
+            IsAlive = saveData.IsAlive;
+            Age = saveData.Age;
+            AdoptionDate = saveData.AdoptionDate;
+        }
+
+        public void UpdateStats(int hungerChange, int sleepChange, int funChange)
         {
             if (!IsAlive) return;
 
-            Hunger = Math.Clamp(Hunger + hunger, 0, 100);
-            Sleep = Math.Clamp(Sleep + sleep, 0, 100);
-            Fun = Math.Clamp(Fun + fun, 0, 100);
+            Hunger = Math.Clamp(Hunger + hungerChange, 0, 100);
+            Sleep = Math.Clamp(Sleep + sleepChange, 0, 100);
+            Fun = Math.Clamp(Fun + funChange, 0, 100);
 
-            // Check if pet died
             if (Hunger <= 0 || Sleep <= 0 || Fun <= 0)
             {
                 IsAlive = false;
+                Hunger = 0;
+                Sleep = 0;
+                Fun = 0;
             }
         }
 
@@ -88,12 +108,19 @@ namespace PetSimulator
 
         public string GetStatus()
         {
-            string status = IsAlive ? "Alive" : "Deceased";
-            return $"Status: {status}";
+            return IsAlive ? "Alive" : "Deceased";
         }
 
         public override string ToString()
         {
+            if (!IsAlive)
+            {
+                return $"Name: {Name}\n" +
+                       $"Type: {Type}\n" +
+                       $"Status: Deceased\n" +
+                       $"Age at death: {Age} days";
+            }
+
             return $"Name: {Name}\n" +
                    $"Type: {Type}\n" +
                    $"Level: {Level}\n" +
@@ -105,6 +132,15 @@ namespace PetSimulator
 
         public string GetDetailedInfo()
         {
+            if (!IsAlive)
+            {
+                return $"Name: {Name}\n" +
+                       $"Type: {Type}\n" +
+                       $"Status: Deceased\n" +
+                       $"Age at death: {Age} days\n" +
+                       $"Adopted: {AdoptionDate:g}";
+            }
+
             return $"Name: {Name}\n" +
                    $"Type: {Type}\n" +
                    $"Level: {Level}\n" +
@@ -114,7 +150,7 @@ namespace PetSimulator
                    $"Sleep: {Sleep}\n" +
                    $"Fun: {Fun}\n" +
                    $"Adopted: {AdoptionDate:g}\n" +
-                   $"{GetStatus()}";
+                   $"Status: Alive";
         }
     }
 } 

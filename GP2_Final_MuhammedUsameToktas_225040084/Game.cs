@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Threading;
+using System.IO;
 
 namespace PetSimulator
 {
@@ -9,9 +10,13 @@ namespace PetSimulator
     {
         private bool isRunning;
         private Menu mainMenu;
+        private Menu homeMenu;
+        private Menu itemsMenu;
         private PetManager petManager;
         private Player player;
         private DateTime lastUpdateTime;
+        private string petHouseName = "My Pet House";
+        private bool isGameStarted = false;
 
         public Game()
         {
@@ -19,57 +24,230 @@ namespace PetSimulator
             petManager = new PetManager();
             player = new Player();
             lastUpdateTime = DateTime.Now;
+            
             mainMenu = new Menu(new[]
             {
-                "Home",
+                "Pet House",
+                "Save Game",
+                "Load Game",
+                "Credits",
+                "Exit Game"
+            });
+
+            homeMenu = new Menu(new[]
+            {
                 "Adopt a Pet",
                 "Care for Pet",
                 "Play with Pet",
                 "Shop",
+                "Items",
                 "View Stats",
-                "Exit Game"
+                "Back to Main Menu"
+            });
+
+            itemsMenu = new Menu(new[]
+            {
+                "Use Item",
+                "Back to Main Menu"
             });
         }
 
-        public async Task Run()
+        public void Run()
         {
             Console.WriteLine("Welcome to Pet Simulator!");
+            Console.WriteLine("Created by: Muhammed Usame Toktas");
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+            Console.Clear();
             
             while (isRunning)
             {
-                UpdatePets();
-                DisplayHome();
-                Console.WriteLine("\nMain Menu:");
+                DisplayMainMenu();
+            }
+        }
+
+        private void DisplayMainMenu()
+        {
+            Console.Clear();
+            Console.WriteLine("Main Menu");
+            Console.WriteLine("=========");
                 int choice = mainMenu.Display();
 
+            switch (choice)
+            {
+                case 1: // Pet House
+                    if (isGameStarted)
+                    {
+                        DisplayHome();
+                    }
+                    else
+                    {
+                        StartNewGame();
+                    }
+                    break;
+                case 2: // Save Game
+                    if (isGameStarted)
+                    {
+                        SaveGame();
+                    }
+                    else
+                    {
+                        UpdateConsole("No game in progress to save!");
+                    }
+                    break;
+                case 3: // Load Game
+                    LoadGame();
+                    break;
+                case 4: // Credits
+                    DisplayCredits();
+                    break;
+                case 5: // Exit Game
+                    isRunning = false;
+                    Console.WriteLine("Thanks for playing!");
+                    break;
+            }
+        }
+
+        private void DisplayCredits()
+        {
+            Console.Clear();
+            Console.WriteLine("Credits");
+            Console.WriteLine("=======");
+            Console.WriteLine("Game Developer: Muhammed Usame Toktas");
+            Console.WriteLine("Version: 1.0");
+            Console.WriteLine("\nPress any key to return to main menu...");
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        private void StartNewGame()
+        {
+            Console.Clear();
+            Console.WriteLine("Starting New Game");
+            Console.WriteLine("================");
+            Console.Write("\nEnter your pet house name: ");
+            string input = Console.ReadLine()?.Trim() ?? "My Pet House";
+            petHouseName = input;
+            isGameStarted = true;
+            Console.Clear();
+            DisplayHome();
+        }
+
+        private void DisplayItemsMenu()
+        {
+            Console.Clear();
+            Console.WriteLine("Items Menu");
+            Console.WriteLine("==========");
+            Console.WriteLine(player.GetInventoryDisplay());
+            Console.WriteLine("\nOptions:");
+            Console.WriteLine("1. Use Item");
+            Console.WriteLine("2. Back to Home");
+
+            Console.Write("\nEnter your choice: ");
+            if (int.TryParse(Console.ReadLine(), out int choice))
+            {
                 switch (choice)
                 {
                     case 1:
-                        DisplayHome();
+                        UseItemFromInventory();
                         break;
                     case 2:
-                        AdoptPet();
-                        break;
-                    case 3:
-                        CareForPet();
-                        break;
-                    case 4:
-                        PlayWithPet();
-                        break;
-                    case 5:
-                        Shop();
-                        break;
-                    case 6:
-                        ViewStats();
-                        break;
-                    case 7:
-                        isRunning = false;
-                        Console.WriteLine("Thanks for playing!");
-                        break;
-                    default:
-                        Console.WriteLine("Invalid choice. Please try again.");
+                        DisplayHome();
                         break;
                 }
+            }
+        }
+
+        private void UseItemFromInventory()
+        {
+            var inventory = player.GetInventory();
+            if (inventory.Count == 0)
+            {
+                UpdateConsole("You don't have any items in your inventory!");
+                return;
+            }
+
+            var pets = petManager.GetAllPets();
+            if (pets.Count == 0)
+            {
+                UpdateConsole("You don't have any pets to use items on!");
+                return;
+            }
+
+            Console.WriteLine("\nYour Items:");
+            int index = 1;
+            foreach (var item in inventory)
+            {
+                Console.WriteLine($"{index}. {item.Key} (x{item.Value})");
+                index++;
+            }
+
+            Console.Write("\nSelect item to use (number): ");
+            if (int.TryParse(Console.ReadLine(), out int itemChoice) && itemChoice > 0 && itemChoice <= inventory.Count)
+            {
+                string itemName = inventory.Keys.ElementAt(itemChoice - 1);
+
+                Console.WriteLine("\nSelect a pet to use the item on:");
+                for (int i = 0; i < pets.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {pets[i].Name} ({pets[i].Type})");
+                }
+
+                Console.Write("\nEnter pet number: ");
+                if (int.TryParse(Console.ReadLine(), out int petChoice) && petChoice > 0 && petChoice <= pets.Count)
+                {
+                    var selectedPet = pets[petChoice - 1];
+                    if (!selectedPet.IsAlive)
+                    {
+                        UpdateConsole($"{selectedPet.Name} has passed away. You can't use items on them anymore.");
+                        return;
+                    }
+
+                    if (player.UseItem(itemName))
+                    {
+                        string message = "";
+                        switch (itemName)
+                        {
+                            case "Pet Food":
+                                selectedPet.UpdateStats(30, 0, 0);
+                                message = $"You fed {selectedPet.Name} with Pet Food. +30 Hunger!";
+                                break;
+                            case "Pet Bed":
+                                selectedPet.UpdateStats(0, 40, 0);
+                                message = $"{selectedPet.Name} slept in the Pet Bed. +40 Sleep!";
+                                break;
+                            case "Pet Toy":
+                                selectedPet.UpdateStats(0, 0, 35);
+                                message = $"{selectedPet.Name} played with the Pet Toy. +35 Fun!";
+                                break;
+                            case "Medicine":
+                                selectedPet.UpdateStats(25, 25, 25);
+                                message = $"{selectedPet.Name} took Medicine. +25 to all stats!";
+                                break;
+                            case "Premium Food":
+                                selectedPet.UpdateStats(50, 0, 0);
+                                message = $"You fed {selectedPet.Name} with Premium Food. +50 Hunger!";
+                                break;
+                            case "Luxury Bed":
+                                selectedPet.UpdateStats(0, 60, 0);
+                                message = $"{selectedPet.Name} slept in the Luxury Bed. +60 Sleep!";
+                                break;
+                            case "Premium Toy":
+                                selectedPet.UpdateStats(0, 0, 55);
+                                message = $"{selectedPet.Name} played with the Premium Toy. +55 Fun!";
+                                break;
+                        }
+                        UpdateConsole(message);
+                    }
+                }
+                else
+                {
+                    UpdateConsole("Invalid pet selection. Please try again.");
+                }
+            }
+            else
+            {
+                UpdateConsole("Invalid item selection. Please try again.");
             }
         }
 
@@ -77,17 +255,17 @@ namespace PetSimulator
         {
             Console.Clear();
             Console.WriteLine(AsciiArt.GetHomeArt());
-            Console.WriteLine("\nYour Pet Home");
+            Console.WriteLine($"\n{petHouseName}");
             Console.WriteLine("=============");
             Console.WriteLine($"💰 Coins: {player.Coins}");
             
-            var pets = petManager.GetAllPets();
+            var pets = petManager.GetAllPets().Where(p => p.IsAlive).ToList();
             if (pets.Count == 0)
             {
                 Console.WriteLine("\nNo pets yet. Adopt one!");
-                return;
             }
-
+            else
+            {
             Console.WriteLine("\nYour Pets:");
             foreach (var pet in pets)
             {
@@ -97,24 +275,140 @@ namespace PetSimulator
             }
         }
 
-        private void UpdatePets()
-        {
-            var now = DateTime.Now;
-            if ((now - lastUpdateTime).TotalSeconds >= 30)
+            Console.WriteLine("\nHome Menu:");
+            int choice = homeMenu.Display();
+
+            switch (choice)
             {
-                foreach (var pet in petManager.GetAllPets())
+                case 1:
+                    AdoptPet();
+                    break;
+                case 2:
+                    CareForPet();
+                    break;
+                case 3:
+                    PlayWithPet();
+                    break;
+                case 4:
+                    Shop();
+                    break;
+                case 5:
+                    DisplayItemsMenu();
+                    break;
+                case 6:
+                    ViewStats();
+                    break;
+                case 7:
+                    Console.Clear();
+                    break;
+            }
+        }
+
+        private void UpdateConsole(string message)
+        {
+            Console.Clear();
+            if (isGameStarted)
+            {
+                DisplayHome();
+            }
+            else
+            {
+                DisplayMainMenu();
+            }
+            Console.WriteLine("\n" + message);
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+            Console.Clear();
+            if (isGameStarted)
+            {
+                DisplayHome();
+            }
+            else
+            {
+                DisplayMainMenu();
+            }
+        }
+
+        private void SaveGame()
+        {
+            Console.Clear();
+            Console.WriteLine("Saving Game...");
+            
+            var saveData = new GameSaveData
+            {
+                PetHouseName = petHouseName,
+                PlayerCoins = player.Coins,
+                PlayerPetsAdopted = player.PetsAdopted,
+                PlayerPetsLost = player.PetsLost,
+                PlayerAchievements = player.GetAchievementsList(),
+                Pets = petManager.GetAllPets().Select(p => new PetSaveData
                 {
-                    if (pet.IsAlive)
-                    {
-                        pet.UpdateStats(-1, -1, -1);
-                        if (!pet.IsAlive)
+                    Name = p.Name,
+                    Type = p.Type,
+                    Hunger = p.Hunger,
+                    Sleep = p.Sleep,
+                    Fun = p.Fun,
+                    Level = p.Level,
+                    Experience = p.Experience,
+                    ExperienceToNextLevel = p.ExperienceToNextLevel,
+                    IsAlive = p.IsAlive,
+                    Age = p.Age,
+                    AdoptionDate = p.AdoptionDate
+                }).ToList()
+            };
+
+            string json = System.Text.Json.JsonSerializer.Serialize(saveData);
+            File.WriteAllText("petsim_save.json", json);
+            
+            UpdateConsole("Game saved successfully!");
+        }
+
+        private void LoadGame()
+        {
+            Console.Clear();
+            Console.WriteLine("Loading Game...");
+            
+            if (!File.Exists("petsim_save.json"))
                         {
-                            player.PetLost();
-                            Console.WriteLine($"\n💔 {pet.Name} has passed away...");
+                UpdateConsole("No save file found!");
+                return;
+            }
+
+            try
+            {
+                string json = File.ReadAllText("petsim_save.json");
+                var saveData = System.Text.Json.JsonSerializer.Deserialize<GameSaveData>(json);
+
+                if (saveData != null)
+                {
+                    petHouseName = saveData.PetHouseName;
+                    player = new Player
+                    {
+                        Coins = saveData.PlayerCoins,
+                        PetsAdopted = saveData.PlayerPetsAdopted,
+                        PetsLost = saveData.PlayerPetsLost
+                    };
+                    
+                    foreach (var achievement in saveData.PlayerAchievements)
+                    {
+                        player.AddAchievement(achievement);
                         }
+
+                    petManager = new PetManager();
+                    foreach (var petData in saveData.Pets)
+                    {
+                        var pet = new Pet(petData.Name, petData.Type);
+                        pet.LoadFromSave(petData);
+                        petManager.AddPet(pet);
                     }
+
+                    isGameStarted = true;
+                    UpdateConsole("Game loaded successfully!");
                 }
-                lastUpdateTime = now;
+            }
+            catch (Exception ex)
+            {
+                UpdateConsole($"Error loading game: {ex.Message}");
             }
         }
 
@@ -124,8 +418,12 @@ namespace PetSimulator
             Console.WriteLine("Player Statistics");
             Console.WriteLine("================");
             Console.WriteLine(player.GetStats());
+            Console.WriteLine("\nAchievements:");
+            Console.WriteLine("=============");
+            Console.WriteLine(player.GetAchievements());
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey();
+            Console.Clear();
         }
 
         private void Shop()
@@ -139,62 +437,109 @@ namespace PetSimulator
             Console.WriteLine("2. Pet Bed (50 coins) - +40 Sleep");
             Console.WriteLine("3. Pet Toy (30 coins) - +35 Fun");
             Console.WriteLine("4. Medicine (100 coins) - +25 to all stats");
-            Console.WriteLine("5. Back to Main Menu");
+            Console.WriteLine("5. Premium Food (50 coins) - +50 Hunger");
+            Console.WriteLine("6. Luxury Bed (100 coins) - +60 Sleep");
+            Console.WriteLine("7. Premium Toy (80 coins) - +55 Fun");
+            Console.WriteLine("8. Back to Main Menu");
 
             Console.Write("\nSelect item to buy: ");
             if (int.TryParse(Console.ReadLine(), out int choice))
             {
+                string message = "";
                 switch (choice)
                 {
                     case 1:
                         if (player.SpendCoins(20))
                         {
-                            Console.WriteLine("Pet Food purchased!");
+                            player.AddItem("Pet Food");
+                            message = "Pet Food purchased!";
+                            player.AddAchievement("First Purchase");
                         }
                         else
                         {
-                            Console.WriteLine("Not enough coins!");
+                            message = "Not enough coins!";
                         }
                         break;
                     case 2:
                         if (player.SpendCoins(50))
                         {
-                            Console.WriteLine("Pet Bed purchased!");
+                            player.AddItem("Pet Bed");
+                            message = "Pet Bed purchased!";
+                            player.AddAchievement("Luxury Buyer");
                         }
                         else
                         {
-                            Console.WriteLine("Not enough coins!");
+                            message = "Not enough coins!";
                         }
                         break;
                     case 3:
                         if (player.SpendCoins(30))
                         {
-                            Console.WriteLine("Pet Toy purchased!");
+                            player.AddItem("Pet Toy");
+                            message = "Pet Toy purchased!";
+                            player.AddAchievement("Toy Collector");
                         }
                         else
                         {
-                            Console.WriteLine("Not enough coins!");
+                            message = "Not enough coins!";
                         }
                         break;
                     case 4:
                         if (player.SpendCoins(100))
                         {
-                            Console.WriteLine("Medicine purchased!");
+                            player.AddItem("Medicine");
+                            message = "Medicine purchased!";
+                            player.AddAchievement("Pet Doctor");
                         }
                         else
                         {
-                            Console.WriteLine("Not enough coins!");
+                            message = "Not enough coins!";
                         }
                         break;
                     case 5:
+                        if (player.SpendCoins(50))
+                        {
+                            player.AddItem("Premium Food");
+                            message = "Premium Food purchased!";
+                            player.AddAchievement("Gourmet Chef");
+                        }
+                        else
+                        {
+                            message = "Not enough coins!";
+                        }
+                        break;
+                    case 6:
+                        if (player.SpendCoins(100))
+                        {
+                            player.AddItem("Luxury Bed");
+                            message = "Luxury Bed purchased!";
+                            player.AddAchievement("Luxury Lover");
+                        }
+                        else
+                        {
+                            message = "Not enough coins!";
+                        }
+                        break;
+                    case 7:
+                        if (player.SpendCoins(80))
+                        {
+                            player.AddItem("Premium Toy");
+                            message = "Premium Toy purchased!";
+                            player.AddAchievement("Toy Master");
+                        }
+                        else
+                        {
+                            message = "Not enough coins!";
+                        }
+                        break;
+                    case 8:
                         return;
                     default:
-                        Console.WriteLine("Invalid choice!");
+                        message = "Invalid choice!";
                         break;
                 }
+                UpdateConsole(message);
             }
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadKey();
         }
 
         private void AdoptPet()
@@ -227,25 +572,23 @@ namespace PetSimulator
                         var pet = new Pet(name, selectedType);
                         petManager.AddPet(pet);
                         player.PetAdopted();
-                        Console.WriteLine($"\nCongratulations! You've adopted a {selectedType} named {name}!");
+                        UpdateConsole($"Congratulations! You've adopted a {selectedType} named {name}!");
                     }
                     else
                     {
-                        Console.WriteLine("Invalid name. Please try again.");
                         player.AddCoins(50); // Refund the coins
+                        UpdateConsole("Invalid name. Please try again.");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Not enough coins to adopt a pet!");
+                    UpdateConsole("Not enough coins to adopt a pet!");
                 }
             }
             else
             {
-                Console.WriteLine("Invalid selection. Please try again.");
+                UpdateConsole("Invalid selection. Please try again.");
             }
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadKey();
         }
 
         private void CareForPet()
@@ -253,7 +596,7 @@ namespace PetSimulator
             var pets = petManager.GetAllPets();
             if (pets.Count == 0)
             {
-                Console.WriteLine("\nYou don't have any pets yet. Adopt one!");
+                UpdateConsole("You don't have any pets yet. Adopt one!");
                 return;
             }
 
@@ -269,7 +612,7 @@ namespace PetSimulator
                 var selectedPet = pets[choice - 1];
                 if (!selectedPet.IsAlive)
                 {
-                    Console.WriteLine($"\n{selectedPet.Name} has passed away. You can't care for them anymore.");
+                    UpdateConsole($"{selectedPet.Name} has passed away. You can't care for them anymore.");
                     return;
                 }
 
@@ -288,12 +631,16 @@ namespace PetSimulator
                             {
                                 selectedPet.UpdateStats(20, 0, 0);
                                 selectedPet.AddExperience(10);
-                                player.AddCoins(5); // Earn some coins for caring
-                                Console.WriteLine($"\nYou fed {selectedPet.Name}. They look happier!");
+                                player.AddCoins(5);
+                                Console.Clear();
+                                Console.WriteLine($"You fed {selectedPet.Name}. They look happier!");
+                                Console.WriteLine("\nPress any key to continue...");
+                                Console.ReadKey();
+                                DisplayHome();
                             }
                             else
                             {
-                                Console.WriteLine("Not enough coins!");
+                                UpdateConsole("Not enough coins!");
                             }
                             break;
                         case 2:
@@ -301,12 +648,16 @@ namespace PetSimulator
                             {
                                 selectedPet.UpdateStats(0, 20, 0);
                                 selectedPet.AddExperience(10);
-                                player.AddCoins(3); // Earn some coins for caring
-                                Console.WriteLine($"\n{selectedPet.Name} had a good rest!");
+                                player.AddCoins(3);
+                                Console.Clear();
+                                Console.WriteLine($"{selectedPet.Name} had a good rest!");
+                                Console.WriteLine("\nPress any key to continue...");
+                                Console.ReadKey();
+                                DisplayHome();
                             }
                             else
                             {
-                                Console.WriteLine("Not enough coins!");
+                                UpdateConsole("Not enough coins!");
                             }
                             break;
                         case 3:
@@ -314,26 +665,28 @@ namespace PetSimulator
                             {
                                 selectedPet.UpdateStats(10, 10, 10);
                                 selectedPet.AddExperience(15);
-                                player.AddCoins(8); // Earn some coins for caring
-                                Console.WriteLine($"\n{selectedPet.Name} is feeling better after the medicine!");
+                                player.AddCoins(8);
+                                Console.Clear();
+                                Console.WriteLine($"{selectedPet.Name} is feeling better after the medicine!");
+                                Console.WriteLine("\nPress any key to continue...");
+                                Console.ReadKey();
+                                DisplayHome();
                             }
                             else
                             {
-                                Console.WriteLine("Not enough coins!");
+                                UpdateConsole("Not enough coins!");
                             }
                             break;
                         default:
-                            Console.WriteLine("Invalid option.");
+                            UpdateConsole("Invalid option.");
                             break;
                     }
                 }
             }
             else
             {
-                Console.WriteLine("Invalid selection. Please try again.");
+                UpdateConsole("Invalid selection. Please try again.");
             }
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadKey();
         }
 
         private void PlayWithPet()
@@ -341,7 +694,7 @@ namespace PetSimulator
             var pets = petManager.GetAllPets();
             if (pets.Count == 0)
             {
-                Console.WriteLine("\nYou don't have any pets yet. Adopt one!");
+                UpdateConsole("You don't have any pets yet. Adopt one!");
                 return;
             }
 
@@ -357,7 +710,7 @@ namespace PetSimulator
                 var selectedPet = pets[choice - 1];
                 if (!selectedPet.IsAlive)
                 {
-                    Console.WriteLine($"\n{selectedPet.Name} has passed away. You can't play with them anymore.");
+                    UpdateConsole($"{selectedPet.Name} has passed away. You can't play with them anymore.");
                     return;
                 }
 
@@ -376,12 +729,16 @@ namespace PetSimulator
                             {
                                 selectedPet.UpdateStats(-5, 0, 15);
                                 selectedPet.AddExperience(20);
-                                player.AddCoins(10); // Earn coins for playing
-                                Console.WriteLine($"\nYou played fetch with {selectedPet.Name}. They had fun!");
+                                player.AddCoins(10);
+                                Console.Clear();
+                                Console.WriteLine($"You played fetch with {selectedPet.Name}. They had fun!");
+                                Console.WriteLine("\nPress any key to continue...");
+                                Console.ReadKey();
+                                DisplayHome();
                             }
                             else
                             {
-                                Console.WriteLine("Not enough coins!");
+                                UpdateConsole("Not enough coins!");
                             }
                             break;
                         case 2:
@@ -389,12 +746,16 @@ namespace PetSimulator
                             {
                                 selectedPet.UpdateStats(0, -10, 20);
                                 selectedPet.AddExperience(25);
-                                player.AddCoins(15); // Earn coins for playing
-                                Console.WriteLine($"\n{selectedPet.Name} had a great time playing hide and seek!");
+                                player.AddCoins(15);
+                                Console.Clear();
+                                Console.WriteLine($"{selectedPet.Name} had a great time playing hide and seek!");
+                                Console.WriteLine("\nPress any key to continue...");
+                                Console.ReadKey();
+                                DisplayHome();
                             }
                             else
                             {
-                                Console.WriteLine("Not enough coins!");
+                                UpdateConsole("Not enough coins!");
                             }
                             break;
                         case 3:
@@ -402,26 +763,45 @@ namespace PetSimulator
                             {
                                 selectedPet.UpdateStats(-15, -15, 25);
                                 selectedPet.AddExperience(30);
-                                player.AddCoins(20); // Earn coins for playing
-                                Console.WriteLine($"\n{selectedPet.Name} learned some new tricks!");
+                                player.AddCoins(20);
+                                Console.Clear();
+                                Console.WriteLine($"{selectedPet.Name} learned some new tricks!");
+                                Console.WriteLine("\nPress any key to continue...");
+                                Console.ReadKey();
+                                DisplayHome();
                             }
                             else
                             {
-                                Console.WriteLine("Not enough coins!");
+                                UpdateConsole("Not enough coins!");
                             }
                             break;
                         default:
-                            Console.WriteLine("Invalid option.");
+                            UpdateConsole("Invalid option.");
                             break;
                     }
                 }
             }
             else
             {
-                Console.WriteLine("Invalid selection. Please try again.");
+                UpdateConsole("Invalid selection. Please try again.");
             }
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadKey();
+        }
+
+        private void UpdatePets()
+        {
+            var pets = petManager.GetAllPets();
+            foreach (var pet in pets)
+            {
+                if (pet.IsAlive)
+                {
+                    pet.AgeOneDay();
+                    if (!pet.IsAlive)
+                    {
+                        player.PetLost();
+                        UpdateConsole($"{pet.Name} has passed away. They will be remembered fondly.");
+                    }
+                }
+            }
         }
     }
 } 
